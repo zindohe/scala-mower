@@ -14,9 +14,11 @@ object Main extends App {
   // println("height : " + grid.height.toString)
   // println("width : " + grid.width.toString)
 
-  val lawnmowers =
-    Executor.parse_lawnmowers(configList.drop(1))
+  val lawnmowers = Executor.parse_lawnmowers(configList.drop(1))
 
+  // for (element <- lawnmowers) {
+  //   println(element)
+  // }
 }
 
 object Direction extends Enumeration {
@@ -64,11 +66,6 @@ object Executor {
       lawnmowers: List[String],
       lawnmowers_list: List[LawnMower]
   ): List[LawnMower] = lawnmowers match {
-    case Nil => lawnmowers_list
-    case n :: Nil => {
-      println(n)
-      lawnmowers_list
-    }
     case n :: m :: rest => {
       def starting_stats = n.split(" ")
       def new_lawnmower =
@@ -80,6 +77,7 @@ object Executor {
         )
       parse_one_lawnmower(rest, lawnmowers_list ::: List(new_lawnmower))
     }
+    case _   => lawnmowers_list
   }
 
 }
