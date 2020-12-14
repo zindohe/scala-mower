@@ -1,14 +1,11 @@
 package projetal2020
 import scala.io.Source
+import play.api.libs.json._
+import java.io._
 
 object Main extends App {
-  //Executor.start_move(0, 0, Direction.North, "AAAGGDDAA");
 
   val configList = FileHandler.read_instructions("instructions.txt").toList
-
-  // for (element <- configList) {
-  //   println(element)
-  // }
 
   val grid = Executor.parse_grid_size(configList.headOption.getOrElse("4 4"))
   // println("height : " + grid.height.toString)
@@ -22,18 +19,27 @@ object Main extends App {
 
   val results = lawnmowers.map(
     (l: LawnMower) =>
-      Executor
-        .calcul_final_pos(
-          new Coordinates(l.x, l.y, l.direction),
-          l.instructions
-        )
+      (
+        l,
+        Executor
+          .calcul_final_pos(
+            new Coordinates(l.x, l.y, l.direction),
+            l.instructions
+          )
+      )
   )
 
-  for (result <- results) {
-    println(result.toString)
-  }
+  //println(FileHandler.get_json(grid))
+  FileHandler.write_results(
+    "resultat.json",
+    FileHandler.get_json(results, grid)
+  )
 
 }
+
+// for (result <- results) {
+//   println(result.toString)
+// }
 
 object Direction extends Enumeration {
   val North = Value("N")
@@ -137,7 +143,9 @@ object Executor {
         new LawnMower(
           starting_stats(0).toInt,
           starting_stats(1).toInt,
-          Direction.getFromString(starting_stats(2)).getOrElse(Direction.North),
+          Direction
+            .getFromString(starting_stats(2))
+            .getOrElse(Direction.North),
           m.split("")
             .map(
               Instruction.getFromString(_).getOrElse(Instruction.Avancer)
@@ -168,6 +176,10 @@ class LawnMower(
     val instructions: List[Instruction.Value]
 ) {
 
+  def toCoordinates(): Coordinates = {
+    new Coordinates(x, y, direction)
+  }
+
   override def toString(): String = {
     "x : " + x.toString +
       "\ny : " + y.toString +
@@ -195,19 +207,44 @@ object FileHandler {
   def read_instructions(filename: String) = {
     Source.fromFile(filename).getLines().map((elem: String) => elem)
   }
+//filename: String, results: List[Coordinates],
+  def get_json(results: List[(LawnMower, Coordinates)], grid: Grid) = {
+    Json.toJson(
+      Map(
+        "limite" -> Map(
+          "x" ->
+            grid.height,
+          "y" ->
+            grid.width
+        ),
+        "tondeuses" -> results.map(
+          (t: (LawnMower, Coordinates)) =>
+            Map(
+              "debut" -> Map(
+                "point" -> Map(
+                  "x" -> t._1.x,
+                  "y" -> t._1.y
+                ),
+                "direction" -> t._1.direction
+              ),
+              "instructions" -> t._1.instructions,
+              "fin" -> Map(
+                "point" -> Map(
+                  "x" -> t._2.x,
+                  "y" -> t._2.y
+                ),
+                "direction": t._2.direction
+              )
+            )
+        )
+      )
+    )
+  }
 
-  // def write_results(filename: String) = {
-
-  // }
+  def write_results(filename: String, results: JsValue) = {
+    val file = new File(filename)
+    val buffer = new BufferedWriter(new FileWriter(file))
+    buffer.write(results.toString)
+    buffer.close()
+  }
 }
-// class LawnMower(
-//     val x: Int,
-//     val y: Int,
-//     val orientation: Direction.Value,
-//     val grid: Grid
-// ) {
-
-//   def move(instruction: Instruction.Value) = {
-//     println("instruction : " + instruction.toString);
-//   }
-// }
