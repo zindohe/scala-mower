@@ -16,23 +16,24 @@ object Main extends App {
 
   val lawnmowers = Executor.parse_lawnmowers(configList.drop(1))
 
-  for (element <- lawnmowers) {
-    println(element)
+  // for (element <- lawnmowers) {
+  //   println(element)
+  // }
+
+  val results = lawnmowers.map(
+    (l: LawnMower) =>
+      Executor
+        .calcul_final_pos(
+          new Coordinates(l.x, l.y, l.direction),
+          l.instructions
+        )
+  )
+
+  for (result <- results) {
+    println(result.toString)
   }
 
 }
-
-// object Direction extends Enumeration {
-//   val N, E, W, S = Value
-
-//   def getFromString(s: String): Option[Value] =
-//     values.find(_.toString == s)
-
-//   override def toString(): String = {
-//     ""
-//   }
-
-// }
 
 object Direction extends Enumeration {
   val North = Value("N")
@@ -42,6 +43,28 @@ object Direction extends Enumeration {
 
   def getFromString(s: String): Option[Value] =
     values.find(_.toString == s)
+
+  def getNewDirection(
+      current: Direction.Value,
+      instruction: Instruction.Value
+  ) = current match {
+    case n if n == Direction.North && instruction == Instruction.Droite =>
+      Direction.East
+    case n if n == Direction.East && instruction == Instruction.Droite =>
+      Direction.South
+    case n if n == Direction.South && instruction == Instruction.Droite =>
+      Direction.West
+    case n if n == Direction.West && instruction == Instruction.Droite =>
+      Direction.North
+    case n if n == Direction.North && instruction == Instruction.Gauche =>
+      Direction.West
+    case n if n == Direction.West && instruction == Instruction.Gauche =>
+      Direction.South
+    case n if n == Direction.South && instruction == Instruction.Gauche =>
+      Direction.East
+    case n if n == Direction.East && instruction == Instruction.Gauche =>
+      Direction.North
+  }
 }
 
 object Instruction extends Enumeration {
@@ -51,9 +74,16 @@ object Instruction extends Enumeration {
 
   def getFromString(s: String): Option[Value] =
     values.find(_.toString == s)
+
 }
 
-class Grid(val height: Int, val width: Int) {}
+class Grid(val height: Int, val width: Int) {
+  def checkCoordinate(coordinate: Coordinates): Boolean = coordinate match {
+    case n if n.x < 0 || n.x > width  => false
+    case n if n.y < 0 || n.y > height => false
+    case _                            => true
+  }
+}
 
 object Executor {
 
@@ -67,9 +97,26 @@ object Executor {
     instructions.split("");
   }
 
-  // def calcul_final_pos(lawnmower: LawnMower) = {
-
-  // }
+  def calcul_final_pos(
+      result: Coordinates,
+      instructions: List[Instruction.Value]
+  ): Coordinates = instructions match {
+    case value :: rest =>
+      value match {
+        case n if n == Instruction.Avancer =>
+          calcul_final_pos(Executor.moveForward(result), rest)
+        case n =>
+          calcul_final_pos(
+            new Coordinates(
+              result.x,
+              result.y,
+              Direction.getNewDirection(result.direction, n)
+            ),
+            rest
+          )
+      }
+    case Nil => result
+  }
 
   def parse_grid_size(config: String) = {
     def sizes = config.split(" ")
@@ -93,30 +140,54 @@ object Executor {
           Direction.getFromString(starting_stats(2)).getOrElse(Direction.North),
           m.split("")
             .map(
-              (v: String) =>
-                Instruction.getFromString(v).getOrElse(Instruction.Avancer)
+              Instruction.getFromString(_).getOrElse(Instruction.Avancer)
             )
+            .toList
         )
       parse_one_lawnmower(rest, lawnmowers_list ::: List(new_lawnmower))
     }
     case _ => lawnmowers_list
   }
 
+  def moveForward(coordinates: Coordinates) = coordinates match {
+    case n if n.direction == Direction.North =>
+      new Coordinates(n.x, n.y + 1, n.direction)
+    case n if n.direction == Direction.East =>
+      new Coordinates(n.x + 1, n.y, n.direction)
+    case n if n.direction == Direction.South =>
+      new Coordinates(n.x, n.y - 1, n.direction)
+    case n if n.direction == Direction.West =>
+      new Coordinates(n.x - 1, n.y, n.direction)
+  }
 }
 
 class LawnMower(
     val x: Int,
     val y: Int,
     val direction: Direction.Value,
-    val instructions: Array[Instruction.Value]
+    val instructions: List[Instruction.Value]
 ) {
+
   override def toString(): String = {
     "x : " + x.toString +
       "\ny : " + y.toString +
       "\ndirection : " + direction.toString +
       "\ninstructions : " + instructions
-      .map((v: Instruction.Value) => v.toString)
+      .map(_.toString)
       .mkString("")
+  }
+}
+
+class Coordinates(
+    val x: Int,
+    val y: Int,
+    val direction: Direction.Value
+) {
+
+  override def toString(): String = {
+    "x : " + x.toString +
+      "\ny : " + y.toString +
+      "\ndirection : " + direction.toString
   }
 }
 
