@@ -8,14 +8,7 @@ object Main extends App {
   val configList = FileHandler.read_instructions("instructions.txt").toList
 
   val grid = Executor.parse_grid_size(configList.headOption.getOrElse("4 4"))
-  // println("height : " + grid.height.toString)
-  // println("width : " + grid.width.toString)
-
   val lawnmowers = Executor.parse_lawnmowers(configList.drop(1))
-
-  // for (element <- lawnmowers) {
-  //   println(element)
-  // }
 
   val results = lawnmowers.map(
     (l: LawnMower) =>
@@ -29,17 +22,15 @@ object Main extends App {
       )
   )
 
-  //println(FileHandler.get_json(grid))
+  // for (result <- results) {
+  //   println(result._1.toString)
+  // }
+
   FileHandler.write_results(
     "resultat.json",
     FileHandler.get_json(results, grid)
   )
-
 }
-
-// for (result <- results) {
-//   println(result.toString)
-// }
 
 object Direction extends Enumeration {
   val North = Value("N")
@@ -107,20 +98,17 @@ object Executor {
       result: Coordinates,
       instructions: List[Instruction.Value]
   ): Coordinates = instructions match {
+    case value :: rest if value == Instruction.Avancer =>
+      calcul_final_pos(Executor.moveForward(result), rest)
     case value :: rest =>
-      value match {
-        case n if n == Instruction.Avancer =>
-          calcul_final_pos(Executor.moveForward(result), rest)
-        case n =>
-          calcul_final_pos(
-            new Coordinates(
-              result.x,
-              result.y,
-              Direction.getNewDirection(result.direction, n)
-            ),
-            rest
-          )
-      }
+      calcul_final_pos(
+        new Coordinates(
+          result.x,
+          result.y,
+          Direction.getNewDirection(result.direction, value)
+        ),
+        rest
+      )
     case Nil => result
   }
 
@@ -207,41 +195,45 @@ object FileHandler {
   def read_instructions(filename: String) = {
     Source.fromFile(filename).getLines().map((elem: String) => elem)
   }
-//filename: String, results: List[Coordinates],
+
+  implicit val coordinatesWrite = new Writes[Coordinates] {
+    def writes(coordinate: Coordinates) = Json.obj(
+      "point" -> Json.obj(
+        "x" -> coordinate.x,
+        "y" -> coordinate.y
+      ),
+      "direction" -> coordinate.direction.toString
+    )
+  }
+
   def get_json(results: List[(LawnMower, Coordinates)], grid: Grid) = {
-    Json.toJson(
-      Map(
-        "limite" -> Map(
-          "x" ->
-            grid.height,
-          "y" ->
-            grid.width
-        ),
-        "tondeuses" -> results.map(
-          (t: (LawnMower, Coordinates)) =>
-            Map(
-              "debut" -> Map(
-                "point" -> Map(
-                  "x" -> t._1.x,
-                  "y" -> t._1.y
+    Json.prettyPrint(
+      Json.toJson(
+        Json.obj(
+          "limite" -> Json.obj(
+            "x" -> grid.width,
+            "y" -> grid.height
+          ),
+          "tondeuses" -> results.map(
+            lawnmower =>
+              Json.obj(
+                "debut" -> Json.obj(
+                  "point" -> Json.obj(
+                    "x" -> lawnmower._1.x,
+                    "y" -> lawnmower._1.y
+                  ),
+                  "direction" -> lawnmower._1.direction.toString
                 ),
-                "direction" -> t._1.direction
-              ),
-              "instructions" -> t._1.instructions,
-              "fin" -> Map(
-                "point" -> Map(
-                  "x" -> t._2.x,
-                  "y" -> t._2.y
-                ),
-                "direction": t._2.direction
+                "instructions" -> lawnmower._1.instructions,
+                "fin"          -> lawnmower._2
               )
-            )
+          )
         )
       )
     )
   }
 
-  def write_results(filename: String, results: JsValue) = {
+  def write_results(filename: String, results: String) = {
     val file = new File(filename)
     val buffer = new BufferedWriter(new FileWriter(file))
     buffer.write(results.toString)
