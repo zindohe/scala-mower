@@ -3,34 +3,38 @@ import scala.io.Source
 import play.api.libs.json._
 import java.io._
 
+@SuppressWarnings(Array("org.wartremover.warts.Throw"))
 object Main extends App {
 
   val configList = FileHandler.readInstructions("instructions.txt").toList
 
-  val grid = Executor.parseGridSize(configList.headOption.getOrElse("4 4"))
-  val lawnmowers = Executor.parseLawnmowers(configList.drop(1))
+  try {
+    val grid = Executor.parseGridSize(
+      configList.headOption
+        .getOrElse(throw new IncorrectDataException("Can't parse input data"))
+    )
+    val lawnmowers = Executor.parseLawnmowers(configList.drop(1))
 
-  val results = lawnmowers.map(
-    (l: LawnMower) =>
-      (
-        l,
-        Executor
-          .calculFinalPos(
-            l.coordinates,
-            l.instructions,
-            grid
-          )
-      )
-  )
+    val results = lawnmowers.map(
+      (l: LawnMower) =>
+        (
+          l,
+          Executor
+            .calculFinalPos(
+              l.coordinates,
+              l.instructions,
+              grid
+            )
+        )
+    )
 
-  // for (result <- results) {
-  //   println(result._1.toString)
-  // }
-
-  FileHandler.writeResults(
-    "resultat.json",
-    FileHandler.getJson(results, grid)
-  )
+    FileHandler.writeResults(
+      "resultat.json",
+      FileHandler.getJson(results, grid)
+    )
+  } catch {
+    case e: Exception => println(e.getMessage)
+  }
 }
 
 object Direction extends Enumeration {
@@ -122,37 +126,67 @@ object Executor {
     case _                            => currentCoordinates
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def parseGridSize(config: String) = {
     def sizes = config.split(" ")
-    new Grid(sizes(0).toInt, sizes(1).toInt)
+    if (sizes.size != 2) {
+      throw new IncorrectDataException("Invalid grid size")
+    } else {
+      try {
+        new Grid(sizes(0).toInt, sizes(1).toInt)
+      } catch {
+        case _: Exception =>
+          throw new IncorrectDataException("Grid size are not numbers")
+      }
+    }
   }
 
   def parseLawnmowers(lawnmowers: List[String]) = {
     parseOneLawnmower(lawnmowers, List[LawnMower]())
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def parseOneLawnmower(
       lawnmowers: List[String],
       lawnmowersList: List[LawnMower]
   ): List[LawnMower] = lawnmowers match {
     case n :: m :: rest => {
       def startingStats = n.split(" ")
-      def newLawnmower =
-        new LawnMower(
-          new Coordinates(
-            startingStats(0).toInt,
-            startingStats(1).toInt,
-            Direction
-              .getFromString(startingStats(2))
-              .getOrElse(Direction.North)
-          ),
-          m.split("")
-            .map(
-              Instruction.getFromString(_).getOrElse(Instruction.Avancer)
-            )
-            .toList
+      if (startingStats.size != 3) {
+        throw new IncorrectDataException(
+          "Invalid starting position for a lawnmower"
         )
-      parseOneLawnmower(rest, lawnmowersList ::: List(newLawnmower))
+      }
+      try {
+        def newLawnmower =
+          new LawnMower(
+            new Coordinates(
+              startingStats(0).toInt,
+              startingStats(1).toInt,
+              Direction
+                .getFromString(startingStats(2))
+                .getOrElse(
+                  throw new IncorrectDataException("Invalid Direction")
+                )
+            ),
+            m.split("")
+              .map(
+                Instruction
+                  .getFromString(_)
+                  .getOrElse(
+                    throw new IncorrectDataException("Invalid Instructions")
+                  )
+              )
+              .toList
+          )
+        parseOneLawnmower(rest, lawnmowersList ::: List(newLawnmower))
+      } catch {
+        case n: IncorrectDataException => throw n
+        case _: Exception =>
+          throw new IncorrectDataException(
+            "Starting position coordinates are not numbers"
+          )
+      }
     }
     case _ => lawnmowersList
   }
@@ -238,3 +272,7 @@ object FileHandler {
     buffer.close()
   }
 }
+
+class IncorrectDataException(
+    message: String
+) extends RuntimeException(message) {}
