@@ -169,7 +169,7 @@ object ConfigReader {
       case Failure(e) =>
         Failure(
           new IncorrectDataException(
-            s"File $filePath could not be read (${e.getMessage}). Please verify file path."
+            s"File $filePath could not be read (${e.getMessage})."
           )
         )
     }

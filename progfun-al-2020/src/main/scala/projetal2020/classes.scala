@@ -29,7 +29,7 @@ final case class Mower(state: MowerState, instructions: List[Instruction]) {
         case West  => South
       })
 
-    def right(state: MowerState) =
+    def right(state: MowerState): MowerState =
       MowerState(state.x, state.y, state.orientation match {
         case North => East
         case East  => South

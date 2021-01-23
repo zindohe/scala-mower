@@ -10,11 +10,14 @@ import projetal2020.classes._
 @SuppressWarnings(Array("org.wartremover.warts.Throw"))
 object Main {
 
+  def defaultInput: String = "instructions.txt"
+  def defaultOutput: String = "summary.json"
+
   def main(cmdArgs: Array[String]): Unit = {
 
     val arguments = ArgumentsParser.parseFromList(cmdArgs.toList)
 
-    ConfigReader.fromFile(arguments.inputPath.getOrElse("instructions.txt")) match {
+    ConfigReader.fromFile(arguments.inputPath.getOrElse(defaultInput)) match {
       case Failure(exception) => {
         throw exception
       }
@@ -30,12 +33,13 @@ object Main {
           )
         val summary = JsonSummary.generate(config.grid, lifecycles)
 
-        val outputFilePath = arguments.outputPath.getOrElse("summary.json")
+        val outputFilePath = arguments.outputPath.getOrElse(defaultOutput)
 
         FileWriter.write(outputFilePath, summary) match {
           case Failure(e) => {
-            val msg = e.getMessage()
-            println(s"Failure while writing output to $outputFilePath ($msg).")
+            println(
+              s"Failure while writing output to $outputFilePath (${e.getMessage})."
+            )
           }
           case _ =>
             println(s"All done. Output was saved to $outputFilePath.")
