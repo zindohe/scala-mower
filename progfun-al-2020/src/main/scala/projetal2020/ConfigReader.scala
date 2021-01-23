@@ -14,7 +14,7 @@ object ConfigReader {
 
   private def parsePositiveInt(string: String): Try[Int] =
     Try(string.toInt).flatMap(int => {
-      if (int > 0) {
+      if (int >= 0) {
         Success(int)
       } else {
         Failure(new IncorrectDataException("Bad positive integer string."))
@@ -166,7 +166,9 @@ object ConfigReader {
 
   def fromFile(filePath: String): Try[Config] =
     Try(Source.fromFile(filePath).getLines().toList) match {
-      case Success(lines: List[String]) => ConfigReader.parseConfig(lines)
+      case Success(lines: List[String]) =>
+        ConfigReader.parseConfig(lines)
+
       case Failure(e) =>
         val msg = e.getMessage()
         Failure(

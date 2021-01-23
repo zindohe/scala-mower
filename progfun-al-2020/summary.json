@@ -14,7 +14,7 @@
     "instructions" : [ "L", "F", "L", "F", "L", "F", "L", "F", "F" ],
     "end" : {
       "coordinates" : {
-        "x" : 2,
+        "x" : 1,
         "y" : 3
       },
       "orientation" : "N"

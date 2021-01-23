@@ -53,7 +53,7 @@ final case class Mower(state: MowerState, instructions: List[Instruction]) {
           state.orientation
         )
 
-      if (newState.x < 0 || newState.x >= grid.x || newState.y < 0 || newState.y >= grid.y) {
+      if (newState.x < 0 || newState.x > grid.x || newState.y < 0 || newState.y > grid.y) {
         state
       } else {
         newState
