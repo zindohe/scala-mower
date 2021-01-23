@@ -9,9 +9,6 @@ import Orientation._
 import projetal2020.JsonSummary._
 import org.scalatest.funsuite.AnyFunSuite
 
-final case class Coordinates(x: Int, y: Int)
-
-@SuppressWarnings(Array("org.wartremover.warts.Any"))
 class JsonSummaryTest extends AnyFunSuite {
 
   test("Should generate a JSON summary") {
