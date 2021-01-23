@@ -167,10 +167,9 @@ object ConfigReader {
         ConfigReader.fromList(lines)
 
       case Failure(e) =>
-        val msg = e.getMessage()
         Failure(
           new IncorrectDataException(
-            s"File could not be read ($msg). Please verify file path."
+            s"File $filePath could not be read (${e.getMessage}). Please verify file path."
           )
         )
     }

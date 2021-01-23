@@ -3,4 +3,5 @@ project/target
 project/project/target
 .bsp
 resultat.json
+summary.json
 .idea
