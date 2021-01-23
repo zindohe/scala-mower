@@ -1,0 +1,39 @@
+{
+  "limits" : {
+    "x" : 5,
+    "y" : 5
+  },
+  "mowers" : [ {
+    "begin" : {
+      "coordinates" : {
+        "x" : 1,
+        "y" : 2
+      },
+      "orientation" : "N"
+    },
+    "instructions" : [ "L", "F", "L", "F", "L", "F", "L", "F", "F" ],
+    "end" : {
+      "coordinates" : {
+        "x" : 2,
+        "y" : 3
+      },
+      "orientation" : "N"
+    }
+  }, {
+    "begin" : {
+      "coordinates" : {
+        "x" : 3,
+        "y" : 3
+      },
+      "orientation" : "E"
+    },
+    "instructions" : [ "F", "F", "R", "F", "F", "R", "F", "R", "R", "F" ],
+    "end" : {
+      "coordinates" : {
+        "x" : 5,
+        "y" : 1
+      },
+      "orientation" : "E"
+    }
+  } ]
+}
