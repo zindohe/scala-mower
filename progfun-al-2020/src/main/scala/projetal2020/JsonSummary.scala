@@ -1,7 +1,6 @@
 package projetal2020.JsonSummary
 import play.api.libs.json._
 import projetal2020.classes._
-import projetal2020.CoordinatesConverter._
 import projetal2020.enums._
 import Orientation._
 import Instruction._
@@ -34,12 +33,10 @@ object JsonSummary {
 
   implicit val mowerStateWrites = new Writes[MowerState] {
     def writes(state: MowerState) = {
-      val outputCoordinates =
-        CoordinatesConverter.toOutputCoordinates((state.x, state.y))
       Json.obj(
         "coordinates" -> Json.obj(
-          "x" -> outputCoordinates._1,
-          "y" -> outputCoordinates._2
+          "x" -> state.x,
+          "y" -> state.y
         ),
         "orientation" -> state.orientation
       )
@@ -48,9 +45,9 @@ object JsonSummary {
 
   implicit val mowerLifecycleWrites = new Writes[MowerLifecycle] {
     def writes(lifecycle: MowerLifecycle) = Json.obj(
-      "begin"        -> lifecycle.initialState,
+      "initialState" -> lifecycle.initialState,
       "instructions" -> lifecycle.instructions,
-      "end"          -> lifecycle.finalState
+      "finalState"   -> lifecycle.finalState
     )
   }
 

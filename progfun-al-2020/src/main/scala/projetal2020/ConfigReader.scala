@@ -5,7 +5,6 @@ import scala.io.Source
 import annotation.tailrec
 import projetal2020.exceptions._
 import projetal2020.classes._
-import projetal2020.CoordinatesConverter._
 import projetal2020.enums._
 import Orientation._
 import Instruction._
@@ -73,11 +72,9 @@ object ConfigReader {
     (splited.headOption, splited.drop(1).headOption, splited.drop(2).headOption) match {
       case (Some(xString), Some(yString), Some(orientationString)) => {
         parseCoordinates(xString, yString).flatMap(coordinates => {
-          val realCoordinates =
-            CoordinatesConverter.toInputCoordinates(coordinates)
           parseOrientation(orientationString).map(
             orientation =>
-              MowerState(realCoordinates._1, realCoordinates._2, orientation)
+              MowerState(coordinates._1, coordinates._2, orientation)
           )
         })
       }
@@ -142,7 +139,7 @@ object ConfigReader {
     go(lines, List())
   }
 
-  private def parseConfig(lines: List[String]): Try[Config] =
+  def fromList(lines: List[String]): Try[Config] =
     lines.headOption match {
       case Some(firstLine: String) =>
         this
@@ -167,7 +164,7 @@ object ConfigReader {
   def fromFile(filePath: String): Try[Config] =
     Try(Source.fromFile(filePath).getLines().toList) match {
       case Success(lines: List[String]) =>
-        ConfigReader.parseConfig(lines)
+        ConfigReader.fromList(lines)
 
       case Failure(e) =>
         val msg = e.getMessage()
