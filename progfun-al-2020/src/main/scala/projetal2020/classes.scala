@@ -2,8 +2,6 @@ package projetal2020.classes
 
 import annotation.tailrec
 import projetal2020.enums._
-import Orientation._
-import Instruction._
 
 final case class Grid(x: Int, y: Int)
 

@@ -2,8 +2,6 @@ package projetal2020.JsonSummary
 import play.api.libs.json._
 import projetal2020.classes._
 import projetal2020.enums._
-import Orientation._
-import Instruction._
 
 object JsonSummary {
 
@@ -16,18 +14,18 @@ object JsonSummary {
 
   implicit val orientationWrites = new Writes[Orientation] {
     def writes(orientation: Orientation) = orientation match {
-      case North => JsString("N")
-      case East  => JsString("E")
-      case South => JsString("S")
-      case West  => JsString("W")
+      case North => JsString(North.serialized.toString)
+      case East  => JsString(East.serialized.toString)
+      case South => JsString(South.serialized.toString)
+      case West  => JsString(West.serialized.toString)
     }
   }
 
   implicit val instructionWrites = new Writes[Instruction] {
     def writes(instruction: Instruction) = instruction match {
-      case Left    => JsString("L")
-      case Right   => JsString("R")
-      case Forward => JsString("F")
+      case Left    => JsString(Left.serialized.toString)
+      case Right   => JsString(Right.serialized.toString)
+      case Forward => JsString(Forward.serialized.toString)
     }
   }
 

@@ -6,8 +6,6 @@ import annotation.tailrec
 import projetal2020.exceptions._
 import projetal2020.classes._
 import projetal2020.enums._
-import Orientation._
-import Instruction._
 
 object ConfigReader {
 
@@ -37,15 +35,13 @@ object ConfigReader {
   private def parseOrientation(
       orientationString: String
   ): Try[Orientation] =
-    orientationString match {
-      case "N" => Success(North)
-      case "E" => Success(East)
-      case "S" => Success(South)
-      case "W" => Success(West)
+    orientationString.headOption.flatMap(char => Orientation.deserialize(char)) match {
+      case Some(orientation) => Success(orientation)
       case _ =>
         Failure(
           new IncorrectDataException(
-            s"Orientation $orientationString is invalid. Must be either N, E, S or W."
+            s"Orientation $orientationString is invalid. Must be either " +
+              s"${North.serialized.toString}, ${East.serialized.toString}, ${South.serialized.toString} or ${West.serialized.toString}."
           )
         )
     }
@@ -97,14 +93,13 @@ object ConfigReader {
         instructions: List[Instruction]
     ): Try[List[Instruction]] = chars match {
       case char :: tail =>
-        char match {
-          case 'L' => go(tail, instructions :+ Left)
-          case 'R' => go(tail, instructions :+ Right)
-          case 'F' => go(tail, instructions :+ Forward)
-          case _ =>
+        Instruction.deserialize(char) match {
+          case Some(i) => go(tail, instructions :+ i)
+          case None =>
             Failure(
               new IncorrectDataException(
-                "Bad instructions. Valid instruction characters are L, R and F."
+                s"Bad instructions. Valid instruction characters are " +
+                  s"${Left.serialized.toString}, ${Right.serialized.toString} and ${Forward.serialized.toString}."
               )
             )
         }

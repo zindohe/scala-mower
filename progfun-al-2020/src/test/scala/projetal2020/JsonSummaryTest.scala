@@ -4,8 +4,6 @@ import play.api.libs.json._
 import play.api.libs.json.Reads._
 import projetal2020.classes._
 import projetal2020.enums._
-import Instruction._
-import Orientation._
 import projetal2020.JsonSummary._
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -17,7 +15,7 @@ class JsonSummaryTest extends AnyFunSuite {
     val lifecycles = List(
       MowerLifecycle(
         MowerState(1, 2, North),
-        List(
+        List[Instruction](
           Left,
           Forward,
           Left,
@@ -32,7 +30,7 @@ class JsonSummaryTest extends AnyFunSuite {
       ),
       MowerLifecycle(
         MowerState(3, 3, East),
-        List(
+        List[Instruction](
           Forward,
           Forward,
           Right,

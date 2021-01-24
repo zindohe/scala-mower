@@ -2,8 +2,6 @@ package projetal2020.test
 
 import projetal2020.classes._
 import projetal2020.enums._
-import Orientation._
-import Instruction._
 import org.scalatest.funsuite.AnyFunSuite
 
 class MowerTest extends AnyFunSuite {
@@ -14,7 +12,17 @@ class MowerTest extends AnyFunSuite {
     val initialState = MowerState(1, 2, North)
     val mower = Mower(
       initialState,
-      List(Left, Forward, Left, Forward, Left, Forward, Left, Forward, Forward)
+      List[Instruction](
+        Left,
+        Forward,
+        Left,
+        Forward,
+        Left,
+        Forward,
+        Left,
+        Forward,
+        Forward
+      )
     )
     assert(mower.execute(grid) == MowerState(1, 3, North))
   }

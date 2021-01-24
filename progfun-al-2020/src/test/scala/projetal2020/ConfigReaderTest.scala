@@ -6,8 +6,6 @@ import org.scalatest.BeforeAndAfterAll
 import projetal2020.ConfigReader._
 import projetal2020.classes._
 import projetal2020.enums._
-import Orientation._
-import Instruction._
 import projetal2020.exceptions._
 import java.io._
 import java.nio.file.Files
@@ -57,11 +55,11 @@ class ConfigReaderTest extends AnyFunSuite with BeforeAndAfterAll {
           List(
             Mower(
               MowerState(1, 3, North),
-              List(Left, Forward, Left, Forward)
+              List[Instruction](Left, Forward, Left, Forward)
             ),
             Mower(
               MowerState(4, 5, East),
-              List(Right, Forward, Forward, Forward)
+              List[Instruction](Right, Forward, Forward, Forward)
             )
           )
         )
@@ -85,11 +83,11 @@ class ConfigReaderTest extends AnyFunSuite with BeforeAndAfterAll {
           List(
             Mower(
               MowerState(1, 3, North),
-              List(Left, Forward, Left, Forward)
+              List[Instruction](Left, Forward, Left, Forward)
             ),
             Mower(
               MowerState(4, 5, East),
-              List(Right, Forward, Forward, Forward)
+              List[Instruction](Right, Forward, Forward, Forward)
             )
           )
         )
