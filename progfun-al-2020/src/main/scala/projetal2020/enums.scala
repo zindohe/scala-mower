@@ -1,11 +1,11 @@
 package projetal2020.enums
 
 sealed trait SerializableEnumeration {
-  def serialized: Char = ???
+  val serialized: Char
 }
 
 sealed trait SerializableEnumerationStatic[T] {
-  def deserialize(char: Char): Option[T] = ???
+  def deserialize(char: Char): Option[T]
 }
 
 sealed trait Instruction extends SerializableEnumeration
