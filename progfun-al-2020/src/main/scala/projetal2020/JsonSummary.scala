@@ -13,20 +13,13 @@ object JsonSummary {
   }
 
   implicit val orientationWrites = new Writes[Orientation] {
-    def writes(orientation: Orientation) = orientation match {
-      case North => JsString(North.serialized.toString)
-      case East  => JsString(East.serialized.toString)
-      case South => JsString(South.serialized.toString)
-      case West  => JsString(West.serialized.toString)
-    }
+    def writes(orientation: Orientation) =
+      JsString(orientation.serialized.toString)
   }
 
   implicit val instructionWrites = new Writes[Instruction] {
-    def writes(instruction: Instruction) = instruction match {
-      case Left    => JsString(Left.serialized.toString)
-      case Right   => JsString(Right.serialized.toString)
-      case Forward => JsString(Forward.serialized.toString)
-    }
+    def writes(instruction: Instruction) =
+      JsString(instruction.serialized.toString)
   }
 
   implicit val mowerStateWrites = new Writes[MowerState] {
